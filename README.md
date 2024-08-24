@@ -11,11 +11,13 @@ This project provides a RESTful API for user authentication and password managem
 - [Environment Configuration](#environment-configuration)
 - [Running the Project](#running-the-project)
 - [API Documentation](#api-documentation)
-  - [1. Login Endpoint](#1-login-endpoint)
-  - [2. Logout Endpoint](#2-logout-endpoint)
-  - [3. Password Reset Request Endpoint](#3-password-reset-request-endpoint)
-  - [4. Password Reset Confirmation Endpoint](#4-password-reset-confirmation-endpoint)
-  - [5. Change Password Endpoint](#5-change-password-endpoint)
+  - [1. User Registration Endpoint](#1-user-registration-endpoint)
+  - [2. Login Endpoint](#2-login-endpoint)
+  - [3. Token Refresh Endpoint](#3-token-refresh-endpoint)
+  - [4. Logout Endpoint](#4-logout-endpoint)
+  - [5. Password Reset Request Endpoint](#5-password-reset-request-endpoint)
+  - [6. Password Reset Confirmation Endpoint](#6-password-reset-confirmation-endpoint)
+  - [7. Change Password Endpoint](#7-change-password-endpoint)
 - [Running Tests](#running-tests)
 
 ## Features
@@ -29,10 +31,8 @@ This project provides a RESTful API for user authentication and password managem
 
 Before you begin, ensure you have the following installed on your local machine:
 
-- Python 3.x
-- Django
-- Django Rest Framework
-- PostgreSQL or any other preferred database
+- Docker
+- Docker Compose
 
 ## Installation
 
@@ -43,29 +43,10 @@ Before you begin, ensure you have the following installed on your local machine:
    cd authentication-api
    ```
 
-2. **Create and Activate a Virtual Environment**:
+2. **Build the Docker Images**:
 
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows, use `venv\Scriptsctivate`
-   ```
-
-3. **Install Required Packages**:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Run Migrations**:
-
-   ```bash
-   python manage.py migrate
-   ```
-
-5. **Create a Superuser** (optional but recommended for admin access):
-
-   ```bash
-   python manage.py createsuperuser
+   docker-compose build
    ```
 
 ## Environment Configuration
@@ -77,27 +58,79 @@ SECRET_KEY=your_secret_key
 EMAIL_HOST_USER=your-email@example.com
 EMAIL_HOST_PASSWORD=your-email-password (or app password)
 DEFAULT_FROM_EMAIL=your-email@example.com
+POSTGRES_DB=your_database_name
+POSTGRES_USER=your_database_user
+POSTGRES_PASSWORD=your_database_password
 ```
 
 Replace the placeholder values with your actual settings.
 
 ## Running the Project
 
-1. **Start the Django Development Server**:
+1. **Start the Docker Containers**:
 
    ```bash
-   python manage.py runserver
+   docker-compose up
    ```
 
-2. **Access the API**:
+2. **Apply Migrations**:
+
+   After the containers are running, open another terminal and run:
+
+   ```bash
+   docker-compose exec web python manage.py migrate
+   ```
+
+3. **Create a Superuser** (optional but recommended for admin access):
+
+   ```bash
+   docker-compose exec web python manage.py createsuperuser
+   ```
+
+4. **Access the API**:
 
    Open your browser and go to `http://127.0.0.1:8000/` to access the API.
 
 ## API Documentation
 
-### 1. **Login Endpoint**
+### 1. **User Registration Endpoint**
 
-- **URL**: `/api/login/`
+- **URL**: `/auth/register/`
+- **Method**: `POST`
+- **Description**: Registers a new user with the provided username, email, and password.
+
+#### Request Body
+
+```json
+{
+  "username": "string",
+  "email": "string",
+  "password": "string",
+  "password2": "string"
+}
+```
+
+#### Responses
+
+- **201 Created**: User registered successfully.
+  ```json
+  {
+    "message": "User registered successfully"
+  }
+  ```
+- **400 Bad Request**: Invalid data provided.
+  ```json
+  {
+    "username": ["This field is required."],
+    "email": ["Enter a valid email address."],
+    "password": ["This field is required."],
+    "password2": ["Passwords do not match."]
+  }
+  ```
+
+### 2. **Login Endpoint**
+
+- **URL**: `/auth/token/`
 - **Method**: `POST`
 - **Description**: Authenticates a user and returns an authentication token.
 
@@ -115,32 +148,71 @@ Replace the placeholder values with your actual settings.
 - **200 OK**: User authenticated successfully.
   ```json
   {
-    "token": "string"
+    "refresh": "string",
+    "access": "string"
   }
   ```
-- **400 Bad Request**: Invalid credentials provided.
+- **401 Unauthorized**: Invalid credentials provided.
   ```json
   {
-    "non_field_errors": ["Unable to log in with provided credentials."]
+    "detail": "No active account found with the given credentials."
   }
   ```
 
-### 2. **Logout Endpoint**
+### 3. **Token Refresh Endpoint**
 
-- **URL**: `/api/logout/`
+- **URL**: `/auth/token/refresh/`
 - **Method**: `POST`
-- **Description**: Logs out the user by invalidating the authentication token.
+- **Description**: Refreshes the JWT token for authenticated users.
 
-#### Request Headers
+#### Request Body
 
-- **Authorization**: `Bearer <token>`
+```json
+{
+  "refresh": "string"
+}
+```
 
 #### Responses
 
-- **200 OK**: User logged out successfully.
+- **200 OK**: Token refreshed successfully.
   ```json
   {
-    "message": "Successfully logged out."
+    "access": "string"
+  }
+  ```
+- **401 Unauthorized**: Invalid refresh token provided.
+  ```json
+  {
+    "detail": "Token is invalid or expired."
+  }
+  ```
+
+### 4. **Logout Endpoint**
+
+- **URL**: `/auth/logout/`
+- **Method**: `POST`
+- **Description**: Logs out the user by invalidating the refresh token.
+
+#### Request Headers
+
+- **Authorization**: `Bearer <access_token>`
+
+#### Request Body
+
+```json
+{
+  "refresh_token": "string"
+}
+```
+
+#### Responses
+
+- **205 Reset Content**: User logged out successfully.
+- **400 Bad Request**: Invalid refresh token provided.
+  ```json
+  {
+    "detail": "Token is invalid or expired."
   }
   ```
 - **401 Unauthorized**: The user is not authenticated.
@@ -150,9 +222,9 @@ Replace the placeholder values with your actual settings.
   }
   ```
 
-### 3. **Password Reset Request Endpoint**
+### 5. **Password Reset Request Endpoint**
 
-- **URL**: `/api/password-reset-request/`
+- **URL**: `/auth/password-reset-request/`
 - **Method**: `POST`
 - **Description**: Requests a password reset by sending an email with a reset link.
 
@@ -179,9 +251,9 @@ Replace the placeholder values with your actual settings.
   }
   ```
 
-### 4. **Password Reset Confirmation Endpoint**
+### 6. **Password Reset Confirmation Endpoint**
 
-- **URL**: `/api/password-reset-confirm/`
+- **URL**: `/auth/password-reset-confirm/`
 - **Method**: `POST`
 - **Description**: Resets the user's password using a token sent to their email.
 
@@ -189,10 +261,10 @@ Replace the placeholder values with your actual settings.
 
 ```json
 {
-  "uidb64": "string",
-  "token": "string",
   "new_password": "string",
-  "confirm_password": "string"
+  "confirm_password": "string",
+  "uid": "string",
+  "token": "string"
 }
 ```
 
@@ -212,15 +284,15 @@ Replace the placeholder values with your actual settings.
   }
   ```
 
-### 5. **Change Password Endpoint**
+### 7. **Change Password Endpoint**
 
-- **URL**: `/api/change-password/`
+- **URL**: `/auth/change-password/`
 - **Method**: `POST`
 - **Description**: Allows an authenticated user to change their password.
 
 #### Request Headers
 
-- **Authorization**: `Bearer <token>`
+- **Authorization**: `Bearer <access_token>`
 
 #### Request Body
 
@@ -259,5 +331,5 @@ Replace the placeholder values with your actual settings.
 To run the tests for this project, use the following command:
 
 ```bash
-python manage.py test
+docker-compose exec growthness_api python manage.py test
 ```
