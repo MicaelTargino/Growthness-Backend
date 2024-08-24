@@ -160,7 +160,7 @@ SIMPLE_JWT = {
     'TOKEN_BLACKLIST': True
 }
 
-FRONTEND_URL = 'http://localhost:3000/'
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 
 # Celery Configuration Options
 CELERY_BROKER_URL = 'redis://growthness_redis:6379/0'  # use your Redis URL

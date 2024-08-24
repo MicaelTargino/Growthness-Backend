@@ -56,9 +56,12 @@ Create a `.env` file in the root directory of your project and configure the fol
 
 ```env
 SECRET_KEY=your_secret_key
-EMAIL_HOST_USER=your-email@example.com
+
+SENDER_MAIL=your-email@example.com
 EMAIL_HOST_PASSWORD=your-email-password (or app password)
-DEFAULT_FROM_EMAIL=your-email@example.com
+
+FRONTEND_URL=http://localhost:3000/
+
 POSTGRES_DB=your_database_name
 POSTGRES_USER=your_database_user
 POSTGRES_PASSWORD=your_database_password
