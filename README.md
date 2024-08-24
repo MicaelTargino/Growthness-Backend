@@ -1,7 +1,7 @@
 
-# Authentication API Project
+# Growthness API
 
-This project provides a RESTful API for user authentication and password management using Django Rest Framework (DRF) and JWT (JSON Web Token) authentication. It includes features such as login, logout, password reset, and password change.
+This project provides a RESTful API using Django Rest Framework (DRF) and JWT (JSON Web Token) authentication. It includes features such as user authentication and password management, CRUD opeations for Habits, Goals, Achievements and more.
 
 ## Table of Contents
 
@@ -22,6 +22,7 @@ This project provides a RESTful API for user authentication and password managem
 
 ## Features
 
+- **User Registration**: Create new users with their username, email and password.
 - **User Login**: Authenticate users with their username and password to obtain a JWT token.
 - **User Logout**: Invalidate JWT tokens to log users out securely.
 - **Password Reset**: Allow users to reset their password via an email link.
@@ -39,8 +40,8 @@ Before you begin, ensure you have the following installed on your local machine:
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/yourusername/authentication-api.git
-   cd authentication-api
+   git clone https://github.com/MicaelTargino/Growthness.git growthness_api
+   cd growthness_api
    ```
 
 2. **Build the Docker Images**:
@@ -78,13 +79,13 @@ Replace the placeholder values with your actual settings.
    After the containers are running, open another terminal and run:
 
    ```bash
-   docker-compose exec web python manage.py migrate
+   docker-compose exec growthness_api python manage.py migrate
    ```
 
 3. **Create a Superuser** (optional but recommended for admin access):
 
    ```bash
-   docker-compose exec web python manage.py createsuperuser
+   docker-compose exec growthness_api python manage.py createsuperuser
    ```
 
 4. **Access the API**:
