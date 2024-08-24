@@ -17,8 +17,6 @@ This project provides a RESTful API for user authentication and password managem
   - [4. Password Reset Confirmation Endpoint](#4-password-reset-confirmation-endpoint)
   - [5. Change Password Endpoint](#5-change-password-endpoint)
 - [Running Tests](#running-tests)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Features
 
@@ -76,15 +74,8 @@ Create a `.env` file in the root directory of your project and configure the fol
 
 ```env
 SECRET_KEY=your_secret_key
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_URL=postgres://user:password@localhost:5432/yourdbname
-EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=smtp.example.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
 EMAIL_HOST_USER=your-email@example.com
-EMAIL_HOST_PASSWORD=your-email-password
+EMAIL_HOST_PASSWORD=your-email-password (or app password)
 DEFAULT_FROM_EMAIL=your-email@example.com
 ```
 
@@ -270,11 +261,3 @@ To run the tests for this project, use the following command:
 ```bash
 python manage.py test
 ```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request or open an Issue.
-
-## License
-
-This project is licensed under the MIT License.
