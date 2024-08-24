@@ -161,3 +161,10 @@ SIMPLE_JWT = {
 }
 
 FRONTEND_URL = 'http://localhost:3000/'
+
+# Celery Configuration Options
+CELERY_BROKER_URL = 'redis://growthness_redis:6379/0'  # use your Redis URL
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'redis://growthness_redis:6379/0'
+CELERY_TIMEZONE = 'UTC'

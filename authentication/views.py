@@ -9,6 +9,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from .tasks import send_password_reset_email
 
 from .serializers import (
     UserRegistrationSerializer,
@@ -120,12 +121,7 @@ class PasswordResetRequestView(APIView):
             token = password_reset_token.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
-            send_mail(
-                subject="Growthness - Password Reset Request",
-                message=f"Use the following link to reset your password: {reset_url}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-            )
+            send_password_reset_email.delay(email, reset_url)
             return Response({"message": "Password reset link sent."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

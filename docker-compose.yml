@@ -13,9 +13,29 @@ services:
       - "8000:8000"
     env_file:
       - .env
-#     depends_on:
-#       - db
+    depends_on:
+      - growthness_redis
+      - growthness_celery
 
+  growthness_celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A growthness worker -l info  
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - growthness_redis
+
+  growthness_redis:
+    image: redis:6.2
+    container_name: growthness_redis
+    ports:
+      - "6379:6379"
+
+# Uncomment and modify this section if you want to use PostgreSQL as your database
 #   db:
 #     image: postgres:13
 #     volumes:
