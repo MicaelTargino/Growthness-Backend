@@ -1,11 +1,11 @@
 from django.urls import path 
 from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
     TokenRefreshView,
 )
 
 from .views import (
     UserRegistrationView,
+    UserLoginView,
     UserLogoutView,
     ChangePasswordView,
     PasswordResetRequestView,
@@ -16,7 +16,7 @@ from .views import (
 urlpatterns = [
     path('protected-endpoint', ProtectedView.as_view(), name="protected-endpoint"),
     path('register/', UserRegistrationView.as_view(), name='register'),
-    path('token/', TokenObtainPairView.as_view(), name='login'),
+    path('token/', UserLoginView.as_view(), name='login'),
     path('logout/', UserLogoutView.as_view(), name='logout'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), # body: {'refresh': str}, response: {'access': str}
     path('change-password/', ChangePasswordView.as_view(), name='change-password'), 
