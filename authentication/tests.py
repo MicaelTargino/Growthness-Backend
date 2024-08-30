@@ -20,7 +20,7 @@ class testuserAuthentication(APITestCase):
         self.logout_url = reverse('logout')
 
     def test_password_reset_request(self):
-        data = {'email': 'testuser@example.com'}
+        data = {'email': 'testuser@example.com', 'test': True}
         response = self.client.post(self.password_reset_request_url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

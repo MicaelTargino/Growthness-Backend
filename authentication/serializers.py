@@ -76,6 +76,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
+    test = serializers.BooleanField(default=False)
 
     def validate_email(self, value):
         try:

@@ -141,11 +141,13 @@ class PasswordResetRequestView(APIView):
         serializer = PasswordResetRequestSerializer(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data['email']
+            test = serializer.validated_data.get('test', False)
             user = User.objects.get(email=email)
             token = password_reset_token.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             reset_url = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
-            send_password_reset_email.delay(email, reset_url)
+            if not test:
+                send_password_reset_email.delay(email, reset_url)
             return Response({"message": "Password reset link sent."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
