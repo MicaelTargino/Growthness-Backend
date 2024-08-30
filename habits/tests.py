@@ -2,7 +2,8 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from authentication.models import User
 from django.urls import reverse
-from .models import Habit
+from .models import Habit, HabitLog
+import datetime
 
 class HabitTests(APITestCase):
 
@@ -22,6 +23,7 @@ class HabitTests(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 
         self.habit_url = reverse('habits-list')  # Use the name of your route
+        self.habit_log_url = reverse('habit-logs-list')
 
     def test_create_habit(self):
         # Test creating a habit
@@ -77,4 +79,64 @@ class HabitTests(APITestCase):
             'daily_goal': 2.0
         }
         response = self.client.post(self.habit_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_create_habit_log(self):
+        # Test creating a habit log
+        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        data = {
+            'habit': habit.id,
+            'date': datetime.date.today().strftime('%Y-%m-%d'),
+            'amount': 0.5
+        }
+        response = self.client.post(self.habit_log_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(HabitLog.objects.count(), 1)
+        self.assertEqual(HabitLog.objects.get().amount, 0.5)
+
+    def test_list_habit_logs(self):
+        # Test listing habit logs
+        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        HabitLog.objects.create(habit=habit, date=datetime.date.today().strftime('%Y-%m-%d'), amount=2.0)
+        response = self.client.get(self.habit_log_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_retrieve_habit_log(self):
+        # Test retrieving a single habit log
+        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit_log = HabitLog.objects.create(habit=habit, date=datetime.date.today().strftime('%Y-%m-%d'), amount=2.0)
+        response = self.client.get(reverse('habit-logs-detail', args=[habit_log.id]), format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['amount'], 2.0)
+
+    def test_update_habit_log(self):
+        # Test updating a habit log
+        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit_log = HabitLog.objects.create(habit=habit, date=datetime.date.today().strftime('%Y-%m-%d'), amount=2.0)
+        data = {
+            'amount': 3.0
+        }
+        response = self.client.patch(reverse('habit-logs-detail', args=[habit_log.id]), data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        habit_log.refresh_from_db()
+        self.assertEqual(habit_log.amount, 3.0)
+
+    def test_delete_habit_log(self):
+        # Test deleting a habit
+        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit_log = HabitLog.objects.create(habit=habit, date=datetime.date.today().strftime('%Y-%m-%d'), amount=2.0)
+        response = self.client.delete(reverse('habit-logs-detail', args=[habit_log.id]), format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(HabitLog.objects.count(), 0)
+
+    def test_habit_log_creation_without_authentication(self):
+        # Test creating a habit log without authentication
+        self.client.logout()
+        data = {
+            "habit": 1,
+            "date": "2024-08-30",
+            "amount": 0.5
+        }
+        response = self.client.post(self.habit_log_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
