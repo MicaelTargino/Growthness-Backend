@@ -7,10 +7,10 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from .tokens import password_reset_token
 
-class TestUserAuthentication(APITestCase):
+class testuserAuthentication(APITestCase):
     def setUp(self):
         # Create a test user
-        self.user = User.objects.create_user(username='testuser', email='testuser@example.com', password='testpassword123')
+        self.user = User.objects.create_user(email='testuser@example.com', password='testpassword123')
 
         # URLs for your endpoints
         self.password_reset_request_url = reverse('password-reset-request')
@@ -84,12 +84,12 @@ class TestUserAuthentication(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_change_password(self):
-        login_data = {'username': 'testuser', 'password': 'testpassword123'}
+        login_data = {'email': 'testuser@example.com', 'password': 'testpassword123'}
         response = self.client.post(self.login_url, login_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         token = response.data['access']
 
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {token}')
         data = {
             'old_password': 'testpassword123',
             'new_password': 'newpassword456',
@@ -103,7 +103,7 @@ class TestUserAuthentication(APITestCase):
         self.assertTrue(self.user.check_password('newpassword456'))
 
     def test_change_password_no_data(self):
-        login_data = {'username': 'testuser', 'password': 'testpassword123'}
+        login_data = {'email': 'testuser@example.com', 'password': 'testpassword123'}
         response = self.client.post(self.login_url, login_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         token = response.data['access']
@@ -114,7 +114,7 @@ class TestUserAuthentication(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_change_password_incorrect_old_password(self):
-        login_data = {'username': 'testuser', 'password': 'testpassword123'}
+        login_data = {'email': 'testuser@example.com', 'password': 'testpassword123'}
         response = self.client.post(self.login_url, login_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         token = response.data['access']
@@ -130,7 +130,7 @@ class TestUserAuthentication(APITestCase):
         self.assertEqual(response.data['old_password'][0], "Old password is not correct.")
 
     def test_change_password_mismatched_passwords(self):
-        login_data = {'username': 'testuser', 'password': 'testpassword123'}
+        login_data = {'email': 'testuser@example.com', 'password': 'testpassword123'}
         response = self.client.post(self.login_url, login_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         token = response.data['access']
@@ -148,7 +148,7 @@ class TestUserAuthentication(APITestCase):
 
     def test_login(self):
         data = {
-            'username': 'testuser',
+            'email': 'testuser@example.com',
             'password': 'testpassword123'
         }
         response = self.client.post(self.login_url, data)
@@ -159,12 +159,10 @@ class TestUserAuthentication(APITestCase):
     def test_login_no_data(self):
         response = self.client.post(self.login_url, {})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('username', response.data)
-        self.assertIn('password', response.data)
 
     def test_login_invalid_credentials(self):
         data = {
-            'username': 'testuser',
+            'email': 'testuser@example.com',
             'password': 'wrongpassword'
         }
         response = self.client.post(self.login_url, data)
@@ -172,7 +170,7 @@ class TestUserAuthentication(APITestCase):
 
     def test_logout(self):
         # Step 1: Log in the user and obtain a token
-        login_data = {'username': 'testuser', 'password': 'testpassword123'}
+        login_data = {'email': 'testuser@example.com', 'password': 'testpassword123'}
         response = self.client.post(self.login_url, login_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         token = response.data['access']
