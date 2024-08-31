@@ -32,7 +32,7 @@ class HabitTests(APITestCase):
         # Test creating a habit
         data = {
             'name': 'Drink Water',
-            'daily_goal': 2.0,
+            'goal': 2.0,
             'frequencies': [self.daily_frequency.id, self.weekly_frequency.id]
         }
         response = self.client.post(self.habit_url, data, format='json')
@@ -44,9 +44,9 @@ class HabitTests(APITestCase):
 
     def test_list_habits(self):
         # Test listing habits
-        habit1 = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit1 = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
         habit1.frequencies.add(self.daily_frequency)
-        habit2 = Habit.objects.create(user=self.user, name='Exercise', daily_goal=1.0)
+        habit2 = Habit.objects.create(user=self.user, name='Exercise', goal=1.0)
         habit2.frequencies.add(self.weekly_frequency)
         response = self.client.get(self.habit_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -56,7 +56,7 @@ class HabitTests(APITestCase):
 
     def test_retrieve_habit(self):
         # Test retrieving a single habit
-        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
         habit.frequencies.add(self.daily_frequency)
         response = self.client.get(reverse('habits-detail', args=[habit.id]), format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -65,23 +65,23 @@ class HabitTests(APITestCase):
 
     def test_update_habit(self):
         # Test updating a habit
-        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
         habit.frequencies.add(self.daily_frequency)
         data = {
             'name': 'Drink More Water',
-            'daily_goal': 3.0,
+            'goal': 3.0,
             'frequencies': [self.weekly_frequency.id]
         }
         response = self.client.patch(reverse('habits-detail', args=[habit.id]), data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         habit.refresh_from_db()
         self.assertEqual(habit.name, 'Drink More Water')
-        self.assertEqual(habit.daily_goal, 3.0)
+        self.assertEqual(habit.goal, 3.0)
         self.assertEqual(set(habit.frequencies.all()), {self.weekly_frequency})
 
     def test_delete_habit(self):
         # Test deleting a habit
-        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
         habit.frequencies.add(self.daily_frequency)
         response = self.client.delete(reverse('habits-detail', args=[habit.id]), format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -92,7 +92,7 @@ class HabitTests(APITestCase):
         self.client.logout()
         data = {
             'name': 'Drink Water',
-            'daily_goal': 2.0,
+            'goal': 2.0,
             'frequencies': [self.daily_frequency.id]
         }
         response = self.client.post(self.habit_url, data, format='json')
@@ -102,7 +102,7 @@ class HabitTests(APITestCase):
         # Test creating a habit without any frequencies (should fail)
         data = {
             'name': 'Drink Water',
-            'daily_goal': 2.0
+            'goal': 2.0
         }
         response = self.client.post(self.habit_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -112,7 +112,7 @@ class HabitTests(APITestCase):
         # Test that habit creation requires at least one frequency
         data = {
             'name': 'Drink Water',
-            'daily_goal': 2.0,
+            'goal': 2.0,
             'frequencies': []  # No frequencies provided
         }
         response = self.client.post(self.habit_url, data, format='json')
@@ -121,7 +121,7 @@ class HabitTests(APITestCase):
 
     def test_create_habit_log(self):
         # Test creating a habit log
-        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
         data = {
             'habit': habit.id,
             'date': datetime.date.today().strftime('%Y-%m-%d'),
@@ -134,7 +134,7 @@ class HabitTests(APITestCase):
 
     def test_list_habit_logs(self):
         # Test listing habit logs
-        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
         HabitLog.objects.create(habit=habit, date=datetime.date.today().strftime('%Y-%m-%d'), amount=2.0)
         response = self.client.get(self.habit_log_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -142,7 +142,7 @@ class HabitTests(APITestCase):
 
     def test_retrieve_habit_log(self):
         # Test retrieving a single habit log
-        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
         habit_log = HabitLog.objects.create(habit=habit, date=datetime.date.today().strftime('%Y-%m-%d'), amount=2.0)
         response = self.client.get(reverse('habit-logs-detail', args=[habit_log.id]), format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -150,7 +150,7 @@ class HabitTests(APITestCase):
 
     def test_update_habit_log(self):
         # Test updating a habit log
-        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
         habit_log = HabitLog.objects.create(habit=habit, date=datetime.date.today().strftime('%Y-%m-%d'), amount=2.0)
         data = {
             'amount': 3.0
@@ -162,7 +162,7 @@ class HabitTests(APITestCase):
 
     def test_delete_habit_log(self):
         # Test deleting a habit
-        habit = Habit.objects.create(user=self.user, name='Drink Water', daily_goal=2.0)
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
         habit_log = HabitLog.objects.create(habit=habit, date=datetime.date.today().strftime('%Y-%m-%d'), amount=2.0)
         response = self.client.delete(reverse('habit-logs-detail', args=[habit_log.id]), format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)

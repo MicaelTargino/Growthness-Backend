@@ -27,8 +27,8 @@ class Habit(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    daily_goal = models.FloatField()  # Could represent liters, steps, etc.
-    measure = models.CharField(max_length=48, null=True) # define the measurement greatness of daily_goal (steps, liters, etc.)
+    goal = models.FloatField()  # Could represent liters, steps, etc.
+    measure = models.CharField(max_length=48, null=True) # define the measurement greatness of goal (steps, liters, etc.)
     frequencies = models.ManyToManyField(Frequency)
     created_at = models.DateTimeField(auto_now_add=True)
 

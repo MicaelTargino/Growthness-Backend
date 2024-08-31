@@ -6,7 +6,7 @@ class HabitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Habit
-        fields = ['id', 'user', 'name', 'daily_goal', 'measure', 'frequencies', 'created_at']
+        fields = ['id', 'user', 'name', 'goal', 'measure', 'frequencies', 'created_at']
     
     def validate_frequencies(self, value):
         # Ensure at least one frequency is selected
