@@ -4,6 +4,7 @@ from authentication.models import User
 from django.urls import reverse
 from .models import Habit, HabitLog, Frequency
 import datetime
+from datetime import timezone 
 
 class HabitTests(APITestCase):
 
@@ -24,6 +25,8 @@ class HabitTests(APITestCase):
 
         self.habit_url = reverse('habits-list')  # Use the name of your route
         self.habit_log_url = reverse('habit-logs-list')
+        self.completion_status_url = reverse('habits-completion-status')
+        self.history_url = reverse('habits-history')
 
         self.daily_frequency = Frequency.objects.create(name='daily')
         self.weekly_frequency = Frequency.objects.create(name='weekly')
@@ -178,3 +181,56 @@ class HabitTests(APITestCase):
         }
         response = self.client.post(self.habit_log_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_completion_status(self):
+        # Test the completion status endpoint
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
+        habit.frequencies.add(self.daily_frequency)
+
+        # Create a habit log within the date range
+        HabitLog.objects.create(habit=habit, date=datetime.datetime.now().date() - datetime.timedelta(days=1), amount=2.0)
+
+        response = self.client.get(self.completion_status_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['habit'], 'Drink Water')
+        self.assertEqual(response.data[0]['total_amount'], 2.0)
+        self.assertTrue(response.data[0]['completed'])
+
+    def test_completion_status_with_no_logs(self):
+        # Test completion status endpoint when no logs exist
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
+        habit.frequencies.add(self.daily_frequency)
+
+        response = self.client.get(self.completion_status_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['habit'], 'Drink Water')
+        self.assertEqual(response.data[0]['total_amount'], 0)
+        self.assertFalse(response.data[0]['completed'])
+
+    def test_habit_history(self):
+        # Test the habit history endpoint
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
+        habit.frequencies.add(self.daily_frequency)
+
+        # Create a habit log within the date range
+        habit_log = HabitLog.objects.create(habit=habit, date=datetime.datetime.now().date() - datetime.timedelta(days=2), amount=1.0)
+
+        response = self.client.get(self.history_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['habit'], 'Drink Water')
+        self.assertEqual(len(response.data[0]['logs']), 1)
+        self.assertEqual(response.data[0]['logs'][0]['amount'], 1.0)
+
+    def test_habit_history_with_no_logs(self):
+        # Test habit history endpoint when no logs exist
+        habit = Habit.objects.create(user=self.user, name='Drink Water', goal=2.0)
+        habit.frequencies.add(self.daily_frequency)
+
+        response = self.client.get(self.history_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['habit'], 'Drink Water')
+        self.assertEqual(len(response.data[0]['logs']), 0)

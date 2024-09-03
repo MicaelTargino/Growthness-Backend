@@ -29,7 +29,7 @@ class HabitViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    @action(detail=False, methods=['get'], url_path='completion-status')
+    @action(detail=False, methods=['get'], url_path='completion-status', url_name='completion-status')
     def completion_status(self, request):
         habits = self.get_queryset()
         results = []
@@ -62,7 +62,7 @@ class HabitViewSet(viewsets.ModelViewSet):
 
         return Response(results, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], url_path='history')
+    @action(detail=False, methods=['get'], url_path='history', url_name='history')
     def habit_history(self, request):
         habits = self.get_queryset()
         date_from = timezone.now().date() - timedelta(days=7)
