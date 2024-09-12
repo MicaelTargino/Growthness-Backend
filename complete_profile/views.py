@@ -30,3 +30,28 @@ class CompleteProfileView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class IncompleteProfileView(APIView):
+    def get(self, request, user_id):
+        # Try to retrieve the user's profile based on the provided user_id
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check which fields are missing
+        missing_fields = []
+        
+        if not user.weight:
+            missing_fields.append("weight")
+        if not user.height:
+            missing_fields.append("height")
+        if not user.goals.exists():  # If no goals are associated with the user
+            missing_fields.append("goals")
+
+        # Check if the profile is complete
+        if not missing_fields:
+            return Response({"profile_complete": True, "missing_fields": [], "percentage": 100}, status=status.HTTP_200_OK)
+        else:
+            return Response({"profile_complete": False, "percentage": (100/3 * (3-len(missing_fields))), "missing_fields": missing_fields}, status=status.HTTP_200_OK)
