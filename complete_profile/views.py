@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from authentication.models import User
 from .serializers import UserProfileSerializer, UserGoalsSerializer
 from .models import UserGoals
@@ -12,8 +13,9 @@ class GoalsListView(APIView):
         return Response(serializer.data)
 
 class CompleteProfileView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def patch(self, request):
-        # Assuming user is authenticated
         user = request.user
 
         # Retrieve the user's profile
@@ -33,10 +35,13 @@ class CompleteProfileView(APIView):
 
 
 class IncompleteProfileView(APIView):
-    def get(self, request, user_id):
-        # Try to retrieve the user's profile based on the provided user_id
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+
+        user = request.user 
+
         try:
-            user = User.objects.get(pk=user_id)
+            user = User.objects.get(pk=user.id)
         except User.DoesNotExist:
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
