@@ -46,17 +46,15 @@ class IncompleteProfileView(APIView):
             return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
         # Check which fields are missing
-        missing_fields = []
-        
-        if not user.weight:
-            missing_fields.append("weight")
-        if not user.height:
-            missing_fields.append("height")
-        if not user.goals.exists():  # If no goals are associated with the user
-            missing_fields.append("goals")
+        field_status = []
+
+        field_status.append({"name": "weight", "description": "Adcione seu peso", "completed": True if user.weight else False})
+        field_status.append({"name": "height", "description": "Adcione sua altura", "completed": True if user.height else False})
+        field_status.append({"name": "goals", "description": "Adcione seu objetivo", "completed": True if user.goals else False})
+
 
         # Check if the profile is complete
-        if not missing_fields:
-            return Response({"profile_complete": True, "missing_fields": [], "percentage": 100}, status=status.HTTP_200_OK)
-        else:
-            return Response({"profile_complete": False, "percentage": (100/3 * (3-len(missing_fields))), "missing_fields": missing_fields}, status=status.HTTP_200_OK)
+        import math
+        completion_percentage = math.ceil(100/len(field_status) * (len(field_status)-len([i for i in field_status if i["completed"] == False])))
+
+        return Response({"profile_complete": False, "percentage": completion_percentage, "fields": field_status}, status=status.HTTP_200_OK)
