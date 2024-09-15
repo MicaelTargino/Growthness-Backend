@@ -50,7 +50,7 @@ class IncompleteProfileView(APIView):
 
         field_status.append({"name": "weight", "description": "Adcione seu peso", "completed": True if user.weight else False})
         field_status.append({"name": "height", "description": "Adcione sua altura", "completed": True if user.height else False})
-        field_status.append({"name": "goals", "description": "Adcione seu objetivo", "completed": True if user.goals else False})
+        field_status.append({"name": "goals", "description": "Adcione seu objetivo", "completed": True if user.goal else False})
 
 
         # Check if the profile is complete

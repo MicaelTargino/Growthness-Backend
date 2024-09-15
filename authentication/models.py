@@ -14,7 +14,7 @@ class User(AbstractUser):
     height = models.FloatField(null=True, blank=True)
     height_measure = models.CharField(max_length=20, default="m")
 
-    goals = models.ManyToManyField(UserGoals, blank=True, null=True, related_name="user_goals")
+    goal = models.ForeignKey(UserGoals, on_delete=models.DO_NOTHING,blank=True, null=True, related_name="user_goal")
 
     USERNAME_FIELD = 'email'  # Set email as the unique identifier for authentication
     REQUIRED_FIELDS = ['password']  # Remove username from required fields
