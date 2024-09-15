@@ -16,7 +16,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['weight', 'weight_measure', 'height', 'height_measure', 'goal', 'goals']
+        fields = ['weight', 'weight_measure', 'height', 'height_measure', 'birth_date', 'goal', 'goals']
 
     # Method to return all available goal titles with selection status
     def get_goals(self, obj):

@@ -16,6 +16,8 @@ class User(AbstractUser):
 
     goal = models.ForeignKey(UserGoals, on_delete=models.DO_NOTHING,blank=True, null=True, related_name="user_goal")
 
+    birth_date = models.DateField(null=True, blank=True)
+
     USERNAME_FIELD = 'email'  # Set email as the unique identifier for authentication
     REQUIRED_FIELDS = ['password']  # Remove username from required fields
 

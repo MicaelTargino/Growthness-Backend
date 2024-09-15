@@ -51,10 +51,11 @@ class IncompleteProfileView(APIView):
         field_status.append({"name": "weight", "description": "Adcione seu peso", "completed": True if user.weight else False})
         field_status.append({"name": "height", "description": "Adcione sua altura", "completed": True if user.height else False})
         field_status.append({"name": "goals", "description": "Adcione seu objetivo", "completed": True if user.goal else False})
+        field_status.append({"name": "birth_date", "description": "Adcione sua data de nascimento", "completed": True if user.birth_date else False})
 
 
         # Check if the profile is complete
         import math
         completion_percentage = math.ceil(100/len(field_status) * (len(field_status)-len([i for i in field_status if i["completed"] == False])))
 
-        return Response({"profile_complete": False, "percentage": completion_percentage, "fields": field_status}, status=status.HTTP_200_OK)
+        return Response({"profile_complete": completion_percentage == 100, "percentage": completion_percentage, "fields": field_status}, status=status.HTTP_200_OK)
