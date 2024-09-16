@@ -48,11 +48,10 @@ class IncompleteProfileView(APIView):
         # Check which fields are missing
         field_status = []
 
-        field_status.append({"name": "weight", "description": "Adcione seu peso", "completed": True if user.weight else False})
-        field_status.append({"name": "height", "description": "Adcione sua altura", "completed": True if user.height else False})
-        field_status.append({"name": "goals", "description": "Adcione seu objetivo", "completed": True if user.goal else False})
-        field_status.append({"name": "birth_date", "description": "Adcione sua data de nascimento", "completed": True if user.birth_date else False})
-
+        field_status.append({"name": "weight", "description": "Informe seu peso", "completed": True if user.weight else False})
+        field_status.append({"name": "height", "description": "Informe sua altura", "completed": True if user.height else False})
+        field_status.append({"name": "goals", "description": "Defina seu objetivo", "completed": True if user.goal else False})
+        field_status.append({"name": "birth_date", "description": "Informe seu nascimento", "completed": True if user.birth_date else False})
 
         # Check if the profile is complete
         import math
