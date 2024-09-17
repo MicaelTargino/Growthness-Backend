@@ -9,14 +9,14 @@ from django.utils import timezone
 from django.db.models import Sum
 from datetime import timedelta
 from .models import Habit, HabitLog
-from .serializers import HabitSerializer, HabitLogSerializer
+from .serializers import HabitSerializer, HabitLogSerializer, FrequencySerializer
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
 from django.db.models import Sum
 from datetime import timedelta
-from .models import Habit, HabitLog
+from .models import Habit, HabitLog, Frequency
 from .serializers import HabitSerializer, HabitLogSerializer
 
 class HabitViewSet(viewsets.ModelViewSet):
@@ -88,5 +88,15 @@ class HabitLogViewSet(viewsets.ModelViewSet):
         print(self.request.user)
         return HabitLog.objects.filter(habit__user=self.request.user)
 
+    def perform_create(self, serializer):
+        serializer.save()
+
+class FrequencyViewSet(viewsets.ModelViewSet):
+    serializer_class = FrequencySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Frequency.objects.all()
+    
     def perform_create(self, serializer):
         serializer.save()

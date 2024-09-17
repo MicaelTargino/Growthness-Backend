@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Habit, HabitLog
+from .models import Habit, HabitLog, Frequency
 
 class HabitSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -34,3 +34,8 @@ class HabitLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = HabitLog
         fields = ['id', 'habit', 'date', 'amount', 'created_at']
+
+class FrequencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Frequency
+        fields = ['id', 'name']
