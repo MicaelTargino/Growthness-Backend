@@ -52,6 +52,7 @@ class HabitViewSet(viewsets.ModelViewSet):
             completed = percentage_completion >= 100
 
             results.append({
+                'id': habit.id,
                 'habit': habit.name,
                 'frequency': frequency,
                 'goal': goal,
