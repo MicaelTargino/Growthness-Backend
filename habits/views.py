@@ -28,6 +28,57 @@ class HabitViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+ 
+    # New endpoint to retrieve habit logs by habit ID, date step, and start date range
+    @action(detail=True, methods=['get'], url_path='habit-graph-logs', url_name='habit-graphlogs')
+    def get_habit_logs(self, request, pk=None):
+        habit_id = pk  # Get habitId from URL
+        try:
+            habit = Habit.objects.get(id=habit_id, user=self.request.user)  # Fetch habit for the logged-in user
+        except Habit.DoesNotExist:
+            return Response({"error": "Habit not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Get query parameters for date step and range
+        start_date_range = request.query_params.get('startDateRange', '7')
+        date_step = request.query_params.get('dateStep', '1')
+
+        try:
+            # Convert start_date_range and date_step to integers
+            start_date_range = int(start_date_range)
+            date_step = int(date_step)
+        except ValueError:
+            return Response({"error": "startDateRange and dateStep must be integers"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Calculate the date range
+        today = timezone.now().date()
+        date_from = today - timedelta(days=start_date_range-1)
+
+        # Generate the list of dates within the range, spaced by `date_step`
+        all_dates = []
+        for i in range(0, start_date_range, date_step):
+            date = date_from + timedelta(days=i)
+            all_dates.append(date)
+
+        # Fetch existing logs within the range
+        habit_logs = HabitLog.objects.filter(habit=habit, date__gte=date_from).order_by('date')
+
+        # Convert the habit logs to a dictionary keyed by the date for easier lookup
+        logs_dict = {log.date: log.amount for log in habit_logs}
+
+        # Prepare the data for the chart, ensuring all dates are present
+        logs_data = []
+        for date in all_dates:
+            logs_data.append({
+                'date': date.strftime('%Y-%m-%d'),  # Format the date
+                'amount': logs_dict.get(date, 0),  # Use 0 if no log exists for the date
+            })
+
+        return Response({
+            'habit': habit.name,
+            'goal': habit.goal,
+            'measure': habit.measure,
+            'logs': logs_data,
+        }, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], url_path='completion-status', url_name='completion-status')
     def completion_status(self, request):
