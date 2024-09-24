@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'authentication',
     'complete_profile',
-    'habits'
+    'habits',
+    'exercises'
 ]
 
 MIDDLEWARE = [
