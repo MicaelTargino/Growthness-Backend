@@ -20,7 +20,7 @@ class Routine(models.Model):
     week_start_date = models.DateField()
 
     def __str__(self):
-        return f'Routine for {self.user.username} starting on {self.week_start_date}'
+        return f'Routine for {self.user.email} starting on {self.week_start_date}'
 
 
 class RoutineExercise(models.Model):
@@ -69,4 +69,4 @@ class Goal(models.Model):
     achieved = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'Goal for {self.user.username}: {self.description}'
+        return f'Goal for {self.user.email}: {self.description}'

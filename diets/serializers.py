@@ -30,7 +30,7 @@ class MealCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Meal
-        fields = ['name', 'date', 'foods']
+        fields = ['id','name', 'date', 'foods']
 
     def create(self, validated_data):
         foods_data = validated_data.pop('foods')  # Extract foods data

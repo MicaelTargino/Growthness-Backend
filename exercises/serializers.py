@@ -11,24 +11,24 @@ class RoutineSerializer(serializers.ModelSerializer):
         model = Routine
         fields = '__all__'
 
-
 class RoutineExerciseSerializer(serializers.ModelSerializer):
-    exercise_name = serializers.CharField(source='exercise.name', read_only=True)  # Include the exercise name
-    exercise_type = serializers.CharField(source='exercise.exercise_type', read_only=True)  # Include the exercise type
+    # Add exercise name and exercise type from the related Exercise model
+    exercise_name = serializers.CharField(source='exercise.name', read_only=True)
+    exercise_type = serializers.CharField(source='exercise.exercise_type', read_only=True)
 
     class Meta:
         model = RoutineExercise
         fields = [
             'id', 
             'day_of_week', 
+            'exercise_name', 
+            'exercise_type', 
             'weight_goal', 
             'reps_goal', 
             'duration', 
             'distance', 
             'pace', 
-            'average_velocity', 
-            'exercise_name',    # Include exercise name
-            'exercise_type'     # Include exercise type
+            'average_velocity'
         ]
 
     def validate(self, data):

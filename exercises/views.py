@@ -14,13 +14,13 @@ from .serializers import (
 
 # Mapping the current day in English
 DAY_MAPPING = {
-    0: 'sunday',
-    1: 'monday',
-    2: 'tuesday',
-    3: 'Wednesday',
-    4: 'thursday',
-    5: 'friday',
-    6: 'saturday'
+    0: 'monday',
+    1: 'tuesday',
+    2: 'Wednesday',
+    3: 'thursday',
+    4: 'friday',
+    5: 'saturday',
+    6: 'sunday'
 }
 
 class ExercisesForTodayView(APIView):
@@ -28,7 +28,9 @@ class ExercisesForTodayView(APIView):
 
     def get(self, request):
         today = datetime.date.today().weekday()
-        current_day = DAY_MAPPING.get(today)
+        current_day = DAY_MAPPING.get(today).lower()
+
+        print(current_day)
 
         # Filter RoutineExercises for the current day
         exercises = RoutineExercise.objects.filter(day_of_week=current_day, routine__user=request.user)
