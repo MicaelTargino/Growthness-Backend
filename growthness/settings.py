@@ -52,7 +52,9 @@ INSTALLED_APPS = [
     'authentication',
     'complete_profile',
     'habits',
-    'exercises'
+    'exercises',
+    'diets',
+    'ai'
 ]
 
 MIDDLEWARE = [

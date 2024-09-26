@@ -9,7 +9,8 @@ from .views import (
     ExerciseLogListCreateView,
     ExerciseLogDetailView,
     GoalListCreateView,
-    GoalDetailView
+    GoalDetailView,
+    ExercisesForTodayView
 )
 
 urlpatterns = [
@@ -21,6 +22,7 @@ urlpatterns = [
     path('routines-exercises/<int:pk>/', RoutineExerciseDetailView.as_view(), name='routine-exercise-detail'),
     path('exercise-logs/', ExerciseLogListCreateView.as_view(), name='exercise-log-list-create'),
     path('exercise-logs/<int:pk>/', ExerciseLogDetailView.as_view(), name='exercise-log-detail'),
+    path('exercises-today/', ExercisesForTodayView.as_view(), name='exercises-for-today'),
     path('goals/', GoalListCreateView.as_view(), name='goal-list-create'),
     path('goals/<int:pk>/', GoalDetailView.as_view(), name='goal-detail'),
 ]
