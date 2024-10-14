@@ -4,15 +4,14 @@ from .models import Food, Meal, MealFood
 class FoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
-        fields = '__all__'
-
+        fields = ['name', 'calories', 'protein', 'carbs', 'fat']  # Include necessary fields
 
 class MealFoodSerializer(serializers.ModelSerializer):
-    food = FoodSerializer()
+    food = FoodSerializer()  # Nest the FoodSerializer to show food details
 
     class Meta:
         model = MealFood
-        fields = ['food', 'servings']
+        fields = ['food', 'servings']  # Show food and servings
 
 
 class MealSerializer(serializers.ModelSerializer):

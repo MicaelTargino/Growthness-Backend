@@ -59,6 +59,8 @@ class ExerciseLogSerializer(serializers.ModelSerializer):
         model = ExerciseLog
         fields = '__all__'
 
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+
 class GoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal

@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from datetime import date
 import os 
 from dotenv import load_dotenv
-
+from .models import AI_data
 import json 
 
 load_dotenv()
@@ -77,8 +77,8 @@ def create_models_data(gpt_data, user):
                 routine=routine,
                 exercise=exercise,
                 day_of_week=english_day,  # Store the English day in the model
-                weight_goal=routine_data.get('weight_goal'),
-                reps_goal=routine_data.get('reps_goal'),
+                weight_goal=routine_data.get('weight'),
+                reps_goal=routine_data.get('reps'),
                 duration=routine_data.get('duration'),
                 distance=routine_data.get('distance'),
                 pace=routine_data.get('pace'),
@@ -113,7 +113,6 @@ def create_models_data(gpt_data, user):
                 servings=food_item.get('servings', 1)  # Default servings to 1 if not provided
             )
 
-
 def generate_data_with_gpt(data):
     try:    
         client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
@@ -122,53 +121,109 @@ def generate_data_with_gpt(data):
             model="gpt-4",
             messages=[
                 {
-                    "role": "system", 
-                    "content": """
-                    Você é um assistente de IA que gera hábitos saudáveis personalizados, rotinas de exercícios e planos alimentares com base nos dados do usuário. 
-                    Responda **APENAS** com a estrutura JSON, sem explicações ou texto adicional, e forneça os nomes, títulos e descrições em português, como descrito a seguir:
+                "role": "system",
+                "content": """
+                Você é um assistente de IA que gera hábitos saudáveis personalizados, rotinas de exercícios e planos alimentares com base nos dados do usuário. 
+                Responda **APENAS** com a estrutura JSON, sem explicações ou texto adicional, e forneça os nomes, títulos e descrições em português, como descrito a seguir:
 
-                    - Para os **hábitos**: O nome do hábito e a unidade de medida devem estar em português.
-                    - Para os **exercícios**: O nome do exercício e o título devem estar em português.
-                    - Para a **dieta**: Tudo em português.
-                    - Para os **dias da semana**: Use os dias em português (segunda-feira, terça-feira, etc.).
+                - Para os **hábitos**: O nome do hábito e a unidade de medida devem estar em português. **Certifique-se de gerar pelo menos três hábitos: um relacionado ao sono, um à alimentação e outro à prática de exercícios.**
+                - Para os **exercícios**: O nome do exercício e o título devem estar em português. **Certifique-se de gerar pelo menos três exercícios para cada dia disponível (it will come in available days key in the json that i will send).**
+                - Para a **dieta**: Liste cada refeição em português com os alimentos incluídos, suas quantidades, calorias, proteínas, carboidratos e gorduras. **Certifique-se de incluir pelo menos três refeições para o dia.**
+                - Para os **dias da semana**: Use os dias em português (segunda-feira, terça-feira, etc.).
 
-                    A estrutura de resposta deve ser assim:
-                    {
-                        "habits": [
-                            {
-                                "name": "Beber água",  # Nome do hábito em português
-                                "goal": 4,
-                                "measure": "litros"  # Unidade de medida em português
-                            },
-                            ...
-                        ],
-                        "exercises": [
-                            {
-                                "day": "Segunda-feira",  # O dia da semana em português
-                                "routine": [
-                                    {
-                                        "exercise": "Agachamento com barra",  # Nome do exercício em português
-                                        "sets": 3,
-                                        "reps": 15,
-                                        "title": "Agachamento"  # Título em português
-                                    },
-                                    ...
-                                ]
-                            },
-                            ...
-                        ],
-                        "diet": [
-                            {
-                                "meal": "Café da manhã",  # Nome da refeição em português
-                                "recommendation": "Claras de ovos com aveia e mirtilos. Um copo de leite."  # Recomendação em português
-                            },
-                            ...
-                        ]
-                    }
-                    Lembre-se de fornecer apenas a estrutura JSON válida, sem texto adicional. Todas as informações solicitadas devem estar em português.
-                    """
-                },
-                {"role": "user", "content": f"User Data: {data}"}
+                A estrutura de resposta deve ser assim:
+                {
+                    "habits": [
+                        {
+                            "name": "Dormir bem",  # Nome do hábito em português
+                            "goal": 8,
+                            "measure": "horas"  # Unidade de medida em português
+                        },
+                        {
+                            "name": "Comer frutas diariamente",  # Nome relacionado à alimentação
+                            "goal": 3,
+                            "measure": "porções"  # Unidade de medida em português
+                        },
+                        {
+                            "name": "Exercitar-se regularmente",  # Nome relacionado a exercícios
+                            "goal": 5,
+                            "measure": "dias por semana"  # Unidade de medida em português
+                        },
+                        ...
+                    ],
+                    "exercises": [
+                        {
+                            "day": "Segunda-feira",  # O dia da semana em português
+                            "routine": [
+                                {
+                                    "exercise": "Agachamento com barra",  # Nome do exercício em português
+                                    "sets": 3,
+                                    "weight": 20
+                                    "reps": 15,
+                                    "title": "Agachamento"  # Título em português
+                                },
+                                {
+                                    "exercise": "Supino reto",  # Segundo exercício
+                                    "sets": 3,
+                                    "weight": 30
+                                    "reps": 12,
+                                    "title": "Supino"
+                                },
+                                {
+                                    "exercise": "Levantamento terra",  # Terceiro exercício
+                                    "sets": 3,
+                                    "weight": 40
+                                    "reps": 10,
+                                    "title": "Levantamento"
+                                }
+                            ]
+                        },
+                        ...
+                    ],
+                    "diet": [
+                        {
+                            "meal": "Café da manhã",  # Nome da refeição em português
+                            "foods": [  # Lista de alimentos com detalhes
+                                {
+                                    "name": "Claras de ovos",  # Nome do alimento
+                                    "servings": 2,  # Quantidade de porções
+                                    "calories": 34,  # Calorias por porção
+                                    "protein": 7.2,  # Proteína em gramas por porção
+                                    "carbs": 0.2,  # Carboidratos em gramas por porção
+                                    "fat": 0.1  # Gordura em gramas por porção
+                                },
+                                {
+                                    "name": "Aveia",
+                                    "servings": 1,
+                                    "calories": 150,
+                                    "protein": 5,
+                                    "carbs": 27,
+                                    "fat": 3
+                                },
+                                {
+                                    "name": "Banana",
+                                    "servings": 1,
+                                    "calories": 89,
+                                    "protein": 1.1,
+                                    "carbs": 23,
+                                    "fat": 0.3
+                                }
+                            ]
+                        },
+                        {
+                            "meal": "Almoço",  # Segunda refeição
+                            "foods": [ ... ]
+                        },
+                        {
+                            "meal": "Jantar",  # Terceira refeição
+                            "foods": [ ... ]
+                        },
+                        ...
+                    ]
+                }
+                Lembre-se de fornecer apenas a estrutura JSON válida, sem texto adicional. Todas as informações solicitadas devem estar em português.
+                """
+                }, {"role": "user", "content": f"User Data: {data}"}
             ]
         )
         
@@ -183,3 +238,38 @@ def generate_data_with_gpt(data):
     except Exception as e:
         print(f"An error occurred while generating data with GPT: {e}")
         return None
+
+def get_data(data):
+    """
+    Description: if there is data for the goal, return it. Otherwise, request AI, save in DB and return it.
+    """
+
+    goal = data.get('goal', '')
+
+    if not goal:
+        return None 
+    
+    data_for_goal_exists = AI_data.objects.filter(goal=goal).exists()
+
+    print("data_for_goal_exists", data_for_goal_exists)
+
+    if data_for_goal_exists:
+        print("returning existing data")
+        return AI_data.objects.get(goal=goal).json_data
+    else:
+        print("fetching data")
+        gpt_data = generate_data_with_gpt(data)
+
+        print(gpt_data)
+        
+        dict_data = {
+            'goal': goal,
+            'json_data': gpt_data
+        }
+        print("registering response")
+        AI_data.objects.create(**dict_data)
+        return gpt_data
+    
+
+
+
