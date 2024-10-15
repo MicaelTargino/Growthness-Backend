@@ -12,6 +12,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .tasks import send_password_reset_email
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from social_django.utils import psa
+from rest_framework.decorators import api_view
+
+from google.auth.transport import requests
+from google.oauth2 import id_token
+
 from .serializers import (
     UserRegistrationSerializer,
     ChangePasswordSerializer,
@@ -19,6 +25,8 @@ from .serializers import (
     PasswordResetSerializer,
     CustomTokenObtainPairSerializer
 )
+
+from .utils import authenticate_or_create_user_from_google_idinfo
 
 # ---- Example of protected CBV and FBV views ----- 
 
@@ -169,3 +177,30 @@ class PasswordResetConfirmView(APIView):
             serializer.save()
             return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['POST'])
+def google_login(request, backend):
+    token = request.data.get('access_token')
+
+    try:
+        # Verify the ID token using Google's API
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY)
+        
+        if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+            raise ValueError('Wrong issuer.')
+
+        # User is authenticated, now you can log them in or create them if necessary
+        user = authenticate_or_create_user_from_google_idinfo(idinfo)
+
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        })
+
+    except ValueError:
+        # Invalid token
+        return Response({'error': 'Invalid token'}, status=400)
