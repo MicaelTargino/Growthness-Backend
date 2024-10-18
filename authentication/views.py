@@ -13,7 +13,7 @@ from .tasks import send_password_reset_email
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from social_django.utils import psa
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 
 from google.auth.transport import requests
 from google.oauth2 import id_token
@@ -26,10 +26,29 @@ from .serializers import (
     CustomTokenObtainPairSerializer
 )
 
+from diets.models import Meal
+from exercises.models import Routine
+from habits.models import Habit 
 from .utils import authenticate_or_create_user_from_google_idinfo
 
-# ---- Example of protected CBV and FBV views ----- 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def is_user_data_empty(request):
+    if request.method == 'GET':
+        # Check if any data exists in Meal, Routine, or Habit for the authenticated user
+        has_meal_data = Meal.objects.filter(user=request.user).exists()
+        has_routine_data = Routine.objects.filter(user=request.user).exists()
+        has_habit_data = Habit.objects.filter(user=request.user).exists()
 
+        is_empty = not (has_meal_data or has_routine_data or has_habit_data)
+
+        return Response({
+            'is_user_data_empty': is_empty
+        }, status=status.HTTP_200_OK)
+    
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+# ---- Example of protected CBV and FBV views ----- 
 class ProtectedView(APIView):
     permission_classes = (IsAuthenticated,)
 

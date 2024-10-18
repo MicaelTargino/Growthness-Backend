@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
-from .views import google_login
+from .views import google_login, is_user_data_empty
 
 from .views import (
     UserRegistrationView,
@@ -28,4 +28,6 @@ urlpatterns = [
     # Google auth endpoints
     path('oauth/', include('social_django.urls', namespace='social')),
     path('google/<str:backend>/', google_login, name='google_login'),
+
+    path('is_user_data_empty', is_user_data_empty, name="is_user_data_empty")
 ]
