@@ -41,7 +41,7 @@ def is_user_data_empty(request):
         has_habit_data = Habit.objects.filter(user=request.user).exists()
 
         is_empty = not (has_meal_data or has_routine_data or has_habit_data)
-
+        print(is_empty)
         return Response({
             'is_user_data_empty': is_empty
         }, status=status.HTTP_200_OK)

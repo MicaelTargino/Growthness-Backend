@@ -13,7 +13,6 @@ class Exercise(models.Model):
     def __str__(self):
         return self.name
 
-
 class Routine(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='routines')
     exercises = models.ManyToManyField(Exercise, through='RoutineExercise')
@@ -21,7 +20,6 @@ class Routine(models.Model):
 
     def __str__(self):
         return f'Routine for {self.user.email} starting on {self.week_start_date}'
-
 
 class RoutineExercise(models.Model):
     routine = models.ForeignKey(Routine, on_delete=models.CASCADE)
@@ -44,8 +42,6 @@ class RoutineExercise(models.Model):
 
     def __str__(self):
         return f'{self.exercise.name} on {self.day_of_week} in {self.routine}'
-
-
 
 class ExerciseLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exercise_logs')

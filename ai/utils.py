@@ -116,6 +116,9 @@ def create_models_data(gpt_data, user):
 def generate_data_with_gpt(data):
     try:    
         client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+        print(data)
+
         
         completion = client.chat.completions.create(
             model="gpt-4",
@@ -127,7 +130,7 @@ def generate_data_with_gpt(data):
                 Responda **APENAS** com a estrutura JSON, sem explicações ou texto adicional, e forneça os nomes, títulos e descrições em português, como descrito a seguir:
 
                 - Para os **hábitos**: O nome do hábito e a unidade de medida devem estar em português. **Certifique-se de gerar pelo menos três hábitos: um relacionado ao sono, um à alimentação e outro à prática de exercícios.**
-                - Para os **exercícios**: O nome do exercício e o título devem estar em português. **Certifique-se de gerar pelo menos três exercícios para cada dia disponível (it will come in available days key in the json that i will send).**
+                - Para os **exercícios**: O nome do exercício e o título devem estar em português. **Certifique-se de gerar pelo menos três exercícios para cada dia disponível. **
                 - Para a **dieta**: Liste cada refeição em português com os alimentos incluídos, suas quantidades, calorias, proteínas, carboidratos e gorduras. **Certifique-se de incluir pelo menos três refeições para o dia.**
                 - Para os **dias da semana**: Use os dias em português (segunda-feira, terça-feira, etc.).
 
@@ -244,10 +247,7 @@ def get_data(data):
     Description: if there is data for the goal, return it. Otherwise, request AI, save in DB and return it.
     """
 
-    goal = data.get('goal', '')
-
-    if not goal:
-        return None 
+    goal = data['goal']
     
     data_for_goal_exists = AI_data.objects.filter(goal=goal).exists()
 

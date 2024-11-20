@@ -14,10 +14,10 @@ class GenerateData(APIView):
             # print(data)
             goal = data.get('goal', '')
 
+            print(goal)
+
             if not goal:
                 return Response({"detail": "Insufficient data."},status=status.HTTP_400_BAD_REQUEST)
-
-            print(goal)
             
             # get the habits, exercises and diets data
             new_data = get_data(data)
