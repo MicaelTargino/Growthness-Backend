@@ -22,5 +22,7 @@ urlpatterns = [
     path('user/complete-profile/', include("complete_profile.urls")),
     path('habits/', include('habits.urls')),
     path('exercises/', include('exercises.urls')),
+    path('diets/', include('diets.urls')),
+    path('ai/', include('ai.urls')),
     path('admin/', admin.site.urls),
 ]

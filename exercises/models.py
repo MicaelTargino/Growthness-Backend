@@ -13,25 +13,35 @@ class Exercise(models.Model):
     def __str__(self):
         return self.name
 
-
 class Routine(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='routines')
     exercises = models.ManyToManyField(Exercise, through='RoutineExercise')
     week_start_date = models.DateField()
 
     def __str__(self):
-        return f'Routine for {self.user.username} starting on {self.week_start_date}'
-
+        return f'Routine for {self.user.email} starting on {self.week_start_date}'
 
 class RoutineExercise(models.Model):
     routine = models.ForeignKey(Routine, on_delete=models.CASCADE)
     exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
+    day_of_week = models.CharField(max_length=10, choices=[
+        ('monday', 'Monday'),
+        ('tuesday', 'Tuesday'),
+        ('wednesday', 'Wednesday'),
+        ('thursday', 'Thursday'),
+        ('friday', 'Friday'),
+        ('saturday', 'Saturday'),
+        ('sunday', 'Sunday')
+    ], null=True, blank=True)
     weight_goal = models.PositiveIntegerField(help_text='Weight goal for this exercise', blank=True, null=True)
     reps_goal = models.PositiveIntegerField(help_text='Reps goal for this exercise', blank=True, null=True)
+    duration = models.PositiveIntegerField(help_text='Duration in minutes for cardio exercises', blank=True, null=True)
+    distance = models.FloatField(help_text='Distance in kilometers for cardio exercises', blank=True, null=True)
+    pace = models.FloatField(help_text='Pace in minutes per kilometer for cardio exercises', blank=True, null=True)
+    average_velocity = models.FloatField(help_text='Average velocity in km/h for cardio exercises', blank=True, null=True)
 
     def __str__(self):
-        return f'{self.exercise.name} in {self.routine}'
-
+        return f'{self.exercise.name} on {self.day_of_week} in {self.routine}'
 
 class ExerciseLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exercise_logs')
@@ -55,4 +65,4 @@ class Goal(models.Model):
     achieved = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'Goal for {self.user.username}: {self.description}'
+        return f'Goal for {self.user.email}: {self.description}'

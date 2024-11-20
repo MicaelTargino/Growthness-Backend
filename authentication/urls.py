@@ -1,7 +1,8 @@
-from django.urls import path 
+from django.urls import path, include
 from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
+from .views import google_login, is_user_data_empty
 
 from .views import (
     UserRegistrationView,
@@ -14,6 +15,7 @@ from .views import (
 )
 
 urlpatterns = [
+    # custom authentication enpoints
     path('protected-endpoint', ProtectedView.as_view(), name="protected-endpoint"),
     path('register/', UserRegistrationView.as_view(), name='register'),
     path('token/', UserLoginView.as_view(), name='login'),
@@ -22,4 +24,10 @@ urlpatterns = [
     path('change-password/', ChangePasswordView.as_view(), name='change-password'), 
     path('password-reset-request/', PasswordResetRequestView.as_view(), name='password-reset-request'),
     path('password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+
+    # Google auth endpoints
+    path('oauth/', include('social_django.urls', namespace='social')),
+    path('google/<str:backend>/', google_login, name='google_login'),
+
+    path('is_user_data_empty', is_user_data_empty, name="is_user_data_empty")
 ]

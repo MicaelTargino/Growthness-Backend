@@ -70,17 +70,72 @@ class ExerciseManagementTests(APITestCase):
         response = self.client.post(self.routine_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_routine_with_exercises(self):
+        routine_data = {
+            'user': self.user.id,
+            'week_start_date': '2024-09-01'
+        }
+        routine_response = self.client.post(self.routine_url, routine_data, format='json')
+        self.assertEqual(routine_response.status_code, status.HTTP_201_CREATED)
+
+        routine_id = routine_response.data['id']
+        
+        exercise_data = {
+            'routine': routine_id,
+            'exercise': Exercise.objects.create(name='Cycling', exercise_type='cardio').id,
+            'day_of_week': 'monday',
+            'duration': 60,
+            'distance': 15.0,
+            'pace': 4.5
+        }
+        
+        routine_exercise_url = reverse('routine-exercise-list-create')
+        response = self.client.post(routine_exercise_url, exercise_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(RoutineExercise.objects.count(), 1)
+
+    def test_create_gym_exercise_in_routine(self):
+        routine = Routine.objects.create(user=self.user, week_start_date='2024-09-01')
+        data = {
+            'routine': routine.id,
+            'exercise': Exercise.objects.create(name='Weightlifting', exercise_type='gym').id,
+            'day_of_week': 'wednesday',
+            'weight_goal': 100,
+            'reps_goal': 10
+        }
+        routine_exercise_url = reverse('routine-exercise-list-create')
+        response = self.client.post(routine_exercise_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(RoutineExercise.objects.count(), 1)
+        self.assertEqual(RoutineExercise.objects.first().weight_goal, 100)
+
+    def test_create_invalid_cardio_exercise_in_routine(self):
+        routine = Routine.objects.create(user=self.user, week_start_date='2024-09-01')
+        data = {
+            'routine': routine.id,
+            'exercise': Exercise.objects.create(name='Cycling', exercise_type='cardio').id,
+            'day_of_week': 'tuesday',
+            'weight_goal': 100,  # Invalid field for cardio
+            'reps_goal': 10
+        }
+        routine_exercise_url = reverse('routine-exercise-list-create')
+        response = self.client.post(routine_exercise_url, data, format='json')
+        
+        # Expecting validation error for weight and reps in cardio exercise
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('non_field_errors', response.data)
+        # self.assertEqual(response.data['non_field_errors'][0], "Weight and reps goals are not applicable for cardio exercises.")
+
+
     def test_create_exercise_log(self):
         exercise = Exercise.objects.create(name='Running', exercise_type='cardio', duration=30)
         routine = Routine.objects.create(user=self.user, week_start_date='2024-09-01')
-        routine_exercise = RoutineExercise.objects.create(routine=routine, exercise=exercise)
+        routine_exercise = RoutineExercise.objects.create(routine=routine, exercise=exercise, day_of_week='monday')
 
         data = {
             'routine_exercise': routine_exercise.id,
-            'user': self.user.id,  # Add the user field
-            'date_logged': '2024-09-01',  # Ensure this field exists in the ExerciseLog model
-            'weight': 0,
-            'reps': 0,
+            'user': self.user.id,
+            'date_logged': '2024-09-01',
             'distance_logged': 5.0,
             'average_velocity_logged': 10.0,
             'pace_logged': 6.0
@@ -91,7 +146,6 @@ class ExerciseManagementTests(APITestCase):
             print(response.data)  # Print the response data to help debug
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
 
     def test_create_goal(self):
         data = {
@@ -122,6 +176,7 @@ class ExerciseManagementTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Goal.objects.count(), 0)
 
+    # Test cases for unauthenticated requests
     def test_create_exercise_without_authentication(self):
         self.client.logout()
         data = {
