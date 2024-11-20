@@ -95,8 +95,12 @@ WSGI_APPLICATION = 'growthness.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv("POSTGRES_DB", "growthnessdb"),  # Replace with your database name
+        'USER': os.getenv("POSTGRES_USER", "growthnessuser"),  # Replace with your PostgreSQL username
+        'PASSWORD': os.getenv("POSTGRES_PASSWORD", "growthnessdefaultpassword"),  # Replace with your PostgreSQL password
+        'HOST': 'growthness_db',  # Replace with your PostgreSQL host (default is 'localhost')
+        'PORT': '5432',  # Replace with your PostgreSQL port (default is 5432)
     }
 }
 

@@ -16,6 +16,7 @@ services:
     depends_on:
       - growthness_redis
       - growthness_celery
+      - growthness_db
 
   growthness_celery:
     build:
@@ -35,17 +36,29 @@ services:
     ports:
       - "6379:6379"
 
-# Uncomment and modify this section if you want to use PostgreSQL as your database
-#   db:
-#     image: postgres:13
-#     volumes:
-#       - postgres_data:/var/lib/postgresql/data/
-#     env_file:
-#       - .env
-#     environment:
-#       POSTGRES_DB: ${POSTGRES_DB}
-#       POSTGRES_USER: ${POSTGRES_USER}
-#       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  growthness_db:
+    container_name: growthness_db
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
 
-# volumes:
-#   postgres_data:
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com 
+      PGADMIN_DEFAULT_PASSWORD: admin         
+    ports:
+      - "8090:80"
+    depends_on:
+      - growthness_db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin_data:
