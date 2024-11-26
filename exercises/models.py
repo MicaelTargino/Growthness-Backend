@@ -4,7 +4,7 @@ from authentication.models import User
 class Exercise(models.Model):
     name = models.CharField(max_length=100)
     exercise_type = models.CharField(max_length=50, choices=[('gym', 'Gym'), ('cardio', 'Cardio')])
-    duration = models.PositiveIntegerField(help_text='Duration in minutes', blank=True, null=True)
+    duration = models.IntegerField(help_text='Duration in minutes', blank=True, null=True)
     # Additional fields for cardio exercises
     distance = models.FloatField(help_text='Distance in kilometers', blank=True, null=True)
     average_velocity = models.FloatField(help_text='Average velocity in km/h', blank=True, null=True)

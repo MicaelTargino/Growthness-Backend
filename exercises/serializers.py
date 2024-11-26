@@ -6,6 +6,24 @@ class ExerciseSerializer(serializers.ModelSerializer):
         model = Exercise
         fields = '__all__'
 
+    def to_internal_value(self, data):
+        # Ensure numeric fields are converted properly or set to None if empty
+        for field in ['duration', 'distance', 'pace', 'average_velocity']:
+            if data.get(field) in ["", None]:
+                data[field] = None
+        return super().to_internal_value(data)
+    
+    def validate(self, data):
+        print(data)
+        # Clean up fields that might be empty strings
+        data['duration'] = data.get('duration') if data.get('duration') not in ["", None] else None
+        data['distance'] = data.get('distance') if data.get('distance') not in ["", None] else None
+        data['pace'] = data.get('pace') if data.get('pace') not in ["", None] else None
+        data['average_velocity'] = data.get('average_velocity') if data.get('average_velocity') not in ["", None] else None 
+
+        print(data)
+        return data   
+
 class RoutineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Routine
@@ -37,6 +55,7 @@ class RoutineExerciseSerializer(serializers.ModelSerializer):
         """
         Custom validation logic for RoutineExercise.
         """
+
         # Clean up fields that might be empty strings
         data['weight_goal'] = data.get('weight_goal') if data.get('weight_goal') not in ["", None] else None
         data['reps_goal'] = data.get('reps_goal') if data.get('reps_goal') not in ["", None] else None
