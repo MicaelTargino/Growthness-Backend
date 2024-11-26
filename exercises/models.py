@@ -33,9 +33,9 @@ class RoutineExercise(models.Model):
         ('saturday', 'Saturday'),
         ('sunday', 'Sunday')
     ], null=True, blank=True)
-    weight_goal = models.PositiveIntegerField(help_text='Weight goal for this exercise', blank=True, null=True)
-    reps_goal = models.PositiveIntegerField(help_text='Reps goal for this exercise', blank=True, null=True)
-    duration = models.PositiveIntegerField(help_text='Duration in minutes for cardio exercises', blank=True, null=True)
+    weight_goal = models.IntegerField(help_text='Weight goal for this exercise', blank=True, null=True)
+    reps_goal = models.IntegerField(help_text='Reps goal for this exercise', blank=True, null=True)
+    duration = models.IntegerField(help_text='Duration in minutes for cardio exercises', blank=True, null=True)
     distance = models.FloatField(help_text='Distance in kilometers for cardio exercises', blank=True, null=True)
     pace = models.FloatField(help_text='Pace in minutes per kilometer for cardio exercises', blank=True, null=True)
     average_velocity = models.FloatField(help_text='Average velocity in km/h for cardio exercises', blank=True, null=True)

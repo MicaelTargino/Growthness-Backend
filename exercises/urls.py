@@ -11,13 +11,15 @@ from .views import (
     GoalListCreateView,
     GoalDetailView,
     ExercisesForTodayView,
-    RoutineExerciseViewSet
+    RoutineExerciseViewSet,
+    GetRoutineIdView
 )
 
 urlpatterns = [
     path('exercises/', ExerciseListCreateView.as_view(), name='exercise-list-create'),
     path('exercises/<int:pk>/', ExerciseDetailView.as_view(), name='exercise-detail'),
     path('routines/', RoutineListCreateView.as_view(), name='routine-list-create'),
+    path('routines/get-id/', GetRoutineIdView.as_view(), name='get-routine-id'),
     path('routines/<int:pk>/', RoutineDetailView.as_view(), name='routine-detail'),
     path('routines-exercises/', RoutineExerciseListCreateView.as_view(), name='routine-exercise-list-create'),
     path('routines-exercises/<int:pk>/', RoutineExerciseDetailView.as_view(), name='routine-exercise-detail'),

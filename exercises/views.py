@@ -65,7 +65,6 @@ class RoutineDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RoutineSerializer
     permission_classes = [IsAuthenticated]  # Require authentication
 
-
 # RoutineExercise Views
 class RoutineExerciseListCreateView(generics.ListCreateAPIView):
     queryset = RoutineExercise.objects.all()
@@ -149,3 +148,22 @@ class RoutineExerciseViewSet(viewsets.ModelViewSet):
         weights_data = [logs_dict.get(date, 0) for date in all_dates]
 
         return Response(weights_data, status=status.HTTP_200_OK)
+    
+
+class GetRoutineIdView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # The user is authenticated via the token, so we can access it via `request.user`
+        user = request.user
+
+        # Retrieve the user's routine
+        try:
+            routine = Routine.objects.filter(user=user).first()  # Get the first routine for the user
+            if not routine:
+                return Response({"error": "No routine found for this user."}, status=status.HTTP_404_NOT_FOUND)
+        except Routine.DoesNotExist:
+            return Response({"error": "No routine found for this user."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Return the routine ID
+        return Response({"routine_id": routine.id}, status=status.HTTP_200_OK)

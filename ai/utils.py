@@ -77,7 +77,7 @@ def create_models_data(gpt_data, user):
                 routine=routine,
                 exercise=exercise,
                 day_of_week=english_day,  # Store the English day in the model
-                weight_goal=routine_data.get('weight'),
+                weight_goal=routine_data.get('weight') ,
                 reps_goal=routine_data.get('reps'),
                 duration=routine_data.get('duration'),
                 distance=routine_data.get('distance'),

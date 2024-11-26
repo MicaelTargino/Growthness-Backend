@@ -20,6 +20,8 @@ class RoutineExerciseSerializer(serializers.ModelSerializer):
         model = RoutineExercise
         fields = [
             'id', 
+            'exercise',
+            'routine',
             'day_of_week', 
             'exercise_name', 
             'exercise_type', 
@@ -32,27 +34,49 @@ class RoutineExerciseSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
-        exercise_type = data['exercise'].exercise_type
-        
-        if exercise_type == 'cardio':
-            # Validate cardio-specific fields
-            if not data.get('duration'):
-                raise serializers.ValidationError("Duration is required for cardio exercises.")
-            if not data.get('pace') and not data.get('average_velocity'):
-                raise serializers.ValidationError("Pace or average velocity is required for cardio exercises.")
-            # Ensure gym-specific fields are not provided
-            if data.get('weight_goal') or data.get('reps_goal'):
-                raise serializers.ValidationError("Weight and reps goals are not applicable for cardio exercises.")
-        
-        elif exercise_type == 'gym':
-            # Validate gym-specific fields
-            if not data.get('weight_goal'):
-                raise serializers.ValidationError("Weight goal is required for gym exercises.")
-            if not data.get('reps_goal'):
-                raise serializers.ValidationError("Reps goal is required for gym exercises.")
-        
-        return data
+        """
+        Custom validation logic for RoutineExercise.
+        """
+        # Clean up fields that might be empty strings
+        data['weight_goal'] = data.get('weight_goal') if data.get('weight_goal') not in ["", None] else None
+        data['reps_goal'] = data.get('reps_goal') if data.get('reps_goal') not in ["", None] else None
+        data['duration'] = data.get('duration') if data.get('duration') not in ["", None] else None
+        data['distance'] = data.get('distance') if data.get('distance') not in ["", None] else None
+        data['pace'] = data.get('pace') if data.get('pace') not in ["", None] else None
+        data['average_velocity'] = data.get('average_velocity') if data.get('average_velocity') not in ["", None] else None
 
+        exercise = data.get('exercise')
+        if not exercise:
+            raise serializers.ValidationError("Exercise must be provided.")
+        exercise_type = exercise.exercise_type
+
+        # Validation for `cardio` exercises
+        if exercise_type == 'cardio':
+            if not data.get('duration'):
+                raise serializers.ValidationError({"duration": "Duration is required for cardio exercises."})
+            if not data.get('pace') and not data.get('average_velocity'):
+                raise serializers.ValidationError({"pace": "Pace or average velocity is required for cardio exercises."})
+            if data.get('weight_goal') is not None:
+                raise serializers.ValidationError({"weight_goal": "Weight goal is not applicable for cardio exercises."})
+            if data.get('reps_goal') is not None:
+                raise serializers.ValidationError({"reps_goal": "Reps goal is not applicable for cardio exercises."})
+
+        # Validation for `gym` exercises
+        elif exercise_type == 'gym':
+            if not data.get('weight_goal'):
+                raise serializers.ValidationError({"weight_goal": "Weight goal is required for gym exercises."})
+            if not data.get('reps_goal'):
+                raise serializers.ValidationError({"reps_goal": "Reps goal is required for gym exercises."})
+            if data.get('duration') is not None:
+                raise serializers.ValidationError({"duration": "Duration is not applicable for gym exercises."})
+            if data.get('distance') is not None:
+                raise serializers.ValidationError({"distance": "Distance is not applicable for gym exercises."})
+            if data.get('pace') is not None:
+                raise serializers.ValidationError({"pace": "Pace is not applicable for gym exercises."})
+            if data.get('average_velocity') is not None:
+                raise serializers.ValidationError({"average_velocity": "Average velocity is not applicable for gym exercises."})
+
+        return data
 
 class ExerciseLogSerializer(serializers.ModelSerializer):
     class Meta:
