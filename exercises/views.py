@@ -133,21 +133,82 @@ class RoutineExerciseViewSet(viewsets.ModelViewSet):
         date_from = today - timedelta(days=start_date_range - 1)
 
         # Generate the list of dates within the range, spaced by `date_step`
-        all_dates = []
-        for i in range(0, start_date_range, date_step):
-            date = date_from + timedelta(days=i)
-            all_dates.append(date)
+        all_dates = [date_from + timedelta(days=i) for i in range(0, start_date_range, date_step)]
 
         # Fetch existing logs within the range
-        exercise_logs = ExerciseLog.objects.filter(routine_exercise=routine_exercise, date_logged__gte=date_from).order_by('date_logged')
+        exercise_logs = ExerciseLog.objects.filter(
+            routine_exercise=routine_exercise, 
+            date_logged__gte=date_from
+        ).order_by('date_logged')
 
-        # Convert the exercise logs to a dictionary keyed by the date for easier lookup
-        logs_dict = {log.date_logged: log.weight for log in exercise_logs}
+        # Check the type of exercise (gym or cardio) and prepare appropriate data
+        is_gym = exercise_logs.filter(weight__isnull=False).exists()  # Check if weight is logged
+        is_cardio = exercise_logs.filter(distance_logged__isnull=False).exists()  # Check if distance is logged
 
-        # Prepare the data for the chart, ensuring all dates are present (only the weight data)
-        weights_data = [logs_dict.get(date, 0) for date in all_dates]
+        if is_gym:
+            # Convert the exercise logs to a dictionary keyed by the date for weights
+            logs_dict = {log.date_logged: log.weight for log in exercise_logs}
+            data_type = "weight"
+        elif is_cardio:
+            # Convert the exercise logs to a dictionary keyed by the date for distances
+            logs_dict = {log.date_logged: log.distance_logged for log in exercise_logs}
+            data_type = "distance_logged"
+        else:
+            return Response([0 for date in all_dates], status=status.HTTP_200_OK)
 
-        return Response(weights_data, status=status.HTTP_200_OK)
+        # Prepare the data for the chart, ensuring all dates are present
+        exercise_data = [logs_dict.get(date, 0) for date in all_dates]
+
+        # Include metadata for the frontend
+        response_data = exercise_data
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+# class RoutineExerciseViewSet(viewsets.ModelViewSet):
+#     queryset = RoutineExercise.objects.all()
+#     serializer_class = RoutineExerciseSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     @action(detail=True, methods=['get'], url_path='exercise-graph-logs', url_name='exercise-graph-logs')
+#     def get_exercise_logs(self, request, pk=None):
+#         routine_exercise_id = pk  # Get RoutineExercise ID from the URL
+#         try:
+#             routine_exercise = RoutineExercise.objects.get(id=routine_exercise_id, routine__user=self.request.user)
+#         except RoutineExercise.DoesNotExist:
+#             return Response({"error": "Routine exercise not found."}, status=status.HTTP_404_NOT_FOUND)
+
+#         # Get query parameters for date range
+#         start_date_range = request.query_params.get('startDateRange', '7')
+#         date_step = request.query_params.get('dateStep', '1')
+
+#         try:
+#             # Convert start_date_range and date_step to integers
+#             start_date_range = int(start_date_range)
+#             date_step = int(date_step)
+#         except ValueError:
+#             return Response({"error": "startDateRange and dateStep must be integers"}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # Calculate the date range
+#         today = timezone.now().date()
+#         date_from = today - timedelta(days=start_date_range - 1)
+
+#         # Generate the list of dates within the range, spaced by `date_step`
+#         all_dates = []
+#         for i in range(0, start_date_range, date_step):
+#             date = date_from + timedelta(days=i)
+#             all_dates.append(date)
+
+#         # Fetch existing logs within the range
+#         exercise_logs = ExerciseLog.objects.filter(routine_exercise=routine_exercise, date_logged__gte=date_from).order_by('date_logged')
+
+#         # Convert the exercise logs to a dictionary keyed by the date for easier lookup
+#         logs_dict = {log.date_logged: log.weight for log in exercise_logs}
+
+#         # Prepare the data for the chart, ensuring all dates are present (only the weight data)
+#         weights_data = [logs_dict.get(date, 0) for date in all_dates]
+
+#         return Response(weights_data, status=status.HTTP_200_OK)
     
 
 class GetRoutineIdView(APIView):

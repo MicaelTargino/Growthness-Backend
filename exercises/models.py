@@ -47,8 +47,8 @@ class ExerciseLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exercise_logs')
     routine_exercise = models.ForeignKey(RoutineExercise, on_delete=models.CASCADE)
     date_logged = models.DateField()
-    weight = models.PositiveIntegerField(help_text='Weight used during exercise', blank=True, null=True)
-    reps = models.PositiveIntegerField(help_text='Reps completed', blank=True, null=True)
+    weight = models.IntegerField(help_text='Weight used during exercise', blank=True, null=True)
+    reps = models.IntegerField(help_text='Reps completed', blank=True, null=True)
     # Additional fields for cardio exercise logs
     distance_logged = models.FloatField(help_text='Distance in kilometers logged', blank=True, null=True)
     average_velocity_logged = models.FloatField(help_text='Average velocity in km/h logged', blank=True, null=True)
