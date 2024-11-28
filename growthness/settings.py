@@ -31,6 +31,7 @@ DEBUG = True
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
+    'https://growthness.targino.dev'
 ]
 
 # CORS_ALLOW_ALL_ORIGINS = True
