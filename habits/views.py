@@ -6,7 +6,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
-from django.db.models import Sum
+from django.db.models import Sum, OuterRef, Subquery
 from datetime import timedelta
 from .models import Habit, HabitLog
 from .serializers import HabitSerializer, HabitLogSerializer, FrequencySerializer
@@ -121,7 +121,19 @@ class HabitViewSet(viewsets.ModelViewSet):
         results = []
 
         for habit in habits:
-            habit_logs = HabitLog.objects.filter(habit=habit, date__gte=date_from).order_by('date')
+            # Get the last log for each date
+            latest_logs_subquery = HabitLog.objects.filter(
+                habit=habit,
+                date=OuterRef('date')
+            ).order_by('-id')
+
+            habit_logs = HabitLog.objects.filter(
+                habit=habit,
+                date__gte=date_from,
+                id=Subquery(latest_logs_subquery.values('id')[:1])
+            ).order_by('date')
+
+            # Serialize the filtered logs
             habit_logs_data = HabitLogSerializer(habit_logs, many=True).data
             results.append({
                 'habit': habit.name,

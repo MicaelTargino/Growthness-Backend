@@ -102,8 +102,7 @@ class GoalDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = GoalSerializer
     permission_classes = [IsAuthenticated]  # Require authentication
 
-
-
+from django.db.models import Max, OuterRef, Subquery
 class RoutineExerciseViewSet(viewsets.ModelViewSet):
     queryset = RoutineExercise.objects.all()
     serializer_class = RoutineExerciseSerializer
@@ -135,10 +134,16 @@ class RoutineExerciseViewSet(viewsets.ModelViewSet):
         # Generate the list of dates within the range, spaced by `date_step`
         all_dates = [date_from + timedelta(days=i) for i in range(0, start_date_range, date_step)]
 
-        # Fetch existing logs within the range
+        # Fetch logs with only the last record for each date
+        latest_logs_subquery = ExerciseLog.objects.filter(
+            routine_exercise=routine_exercise,
+            date_logged=OuterRef('date_logged')
+        ).order_by('-id')
+
         exercise_logs = ExerciseLog.objects.filter(
-            routine_exercise=routine_exercise, 
-            date_logged__gte=date_from
+            routine_exercise=routine_exercise,
+            date_logged__gte=date_from,
+            id=Subquery(latest_logs_subquery.values('id')[:1]) 
         ).order_by('date_logged')
 
         # Check the type of exercise (gym or cardio) and prepare appropriate data
@@ -163,7 +168,6 @@ class RoutineExerciseViewSet(viewsets.ModelViewSet):
         response_data = exercise_data
 
         return Response(response_data, status=status.HTTP_200_OK)
-
 
 # class RoutineExerciseViewSet(viewsets.ModelViewSet):
 #     queryset = RoutineExercise.objects.all()
@@ -194,21 +198,36 @@ class RoutineExerciseViewSet(viewsets.ModelViewSet):
 #         date_from = today - timedelta(days=start_date_range - 1)
 
 #         # Generate the list of dates within the range, spaced by `date_step`
-#         all_dates = []
-#         for i in range(0, start_date_range, date_step):
-#             date = date_from + timedelta(days=i)
-#             all_dates.append(date)
+#         all_dates = [date_from + timedelta(days=i) for i in range(0, start_date_range, date_step)]
 
 #         # Fetch existing logs within the range
-#         exercise_logs = ExerciseLog.objects.filter(routine_exercise=routine_exercise, date_logged__gte=date_from).order_by('date_logged')
+#         exercise_logs = ExerciseLog.objects.filter(
+#             routine_exercise=routine_exercise, 
+#             date_logged__gte=date_from
+#         ).order_by('date_logged')
 
-#         # Convert the exercise logs to a dictionary keyed by the date for easier lookup
-#         logs_dict = {log.date_logged: log.weight for log in exercise_logs}
+#         # Check the type of exercise (gym or cardio) and prepare appropriate data
+#         is_gym = exercise_logs.filter(weight__isnull=False).exists()  # Check if weight is logged
+#         is_cardio = exercise_logs.filter(distance_logged__isnull=False).exists()  # Check if distance is logged
 
-#         # Prepare the data for the chart, ensuring all dates are present (only the weight data)
-#         weights_data = [logs_dict.get(date, 0) for date in all_dates]
+#         if is_gym:
+#             # Convert the exercise logs to a dictionary keyed by the date for weights
+#             logs_dict = {log.date_logged: log.weight for log in exercise_logs}
+#             data_type = "weight"
+#         elif is_cardio:
+#             # Convert the exercise logs to a dictionary keyed by the date for distances
+#             logs_dict = {log.date_logged: log.distance_logged for log in exercise_logs}
+#             data_type = "distance_logged"
+#         else:
+#             return Response([0 for date in all_dates], status=status.HTTP_200_OK)
 
-#         return Response(weights_data, status=status.HTTP_200_OK)
+#         # Prepare the data for the chart, ensuring all dates are present
+#         exercise_data = [logs_dict.get(date, 0) for date in all_dates]
+
+#         # Include metadata for the frontend
+#         response_data = exercise_data
+
+#         return Response(response_data, status=status.HTTP_200_OK)
     
 
 class GetRoutineIdView(APIView):
