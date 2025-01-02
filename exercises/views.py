@@ -247,3 +247,35 @@ class GetRoutineIdView(APIView):
 
         # Return the routine ID
         return Response({"routine_id": routine.id}, status=status.HTTP_200_OK)
+    
+class WeeklyExercisesView(APIView):
+    """
+    View to return exercises assigned for each day of the week for the authenticated user.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Fetch the user's routines
+        routines = Routine.objects.filter(user=request.user)
+
+        if not routines.exists():
+            return Response({"error": "No routines found for this user."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Fetch all RoutineExercises for the user's routines
+        weekly_exercises = RoutineExercise.objects.filter(routine__in=routines).values(
+            'day_of_week', 'exercise__name', 'exercise__exercise_type', 'weight_goal', 'reps_goal',
+            'duration', 'distance', 'pace', 'average_velocity'
+        ).order_by('day_of_week', 'exercise__name')
+
+        # Initialize the result dictionary with days of the week
+        result = {day: [] for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']}
+        # result['unknown'] = []  # For any exercises with no day_of_week set
+
+        for exercise in weekly_exercises:
+            day = exercise.pop('day_of_week')
+            if day in result:
+                result[day].append(exercise)
+            # else:
+                # result['unknown'].append(exercise)  # Handle exercises without a valid day_of_week
+
+        return Response(result, status=status.HTTP_200_OK)

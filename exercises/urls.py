@@ -12,12 +12,14 @@ from .views import (
     GoalDetailView,
     ExercisesForTodayView,
     RoutineExerciseViewSet,
-    GetRoutineIdView
+    GetRoutineIdView,
+    WeeklyExercisesView
 )
 
 urlpatterns = [
     path('exercises/', ExerciseListCreateView.as_view(), name='exercise-list-create'),
     path('exercises/<int:pk>/', ExerciseDetailView.as_view(), name='exercise-detail'),
+    path('weekly-exercises/', WeeklyExercisesView.as_view(), name='weekly-exercises'),
     path('routines/', RoutineListCreateView.as_view(), name='routine-list-create'),
     path('routines/get-id/', GetRoutineIdView.as_view(), name='get-routine-id'),
     path('routines/<int:pk>/', RoutineDetailView.as_view(), name='routine-detail'),
