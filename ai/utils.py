@@ -138,46 +138,46 @@ def generate_data_with_gpt(data):
                 {
                     "habits": [
                         {
-                            "name": "Dormir bem",  # Nome do hábito em português
-                            "goal": 8,
-                            "measure": "horas"  # Unidade de medida em português
+                            "name": "Dormir bem" (string),  # Nome do hábito em português
+                            "goal": 8 (int),
+                            "measure": "horas" (string)  # Unidade de medida em português
                         },
                         {
-                            "name": "Comer frutas diariamente",  # Nome relacionado à alimentação
-                            "goal": 3,
-                            "measure": "porções"  # Unidade de medida em português
+                            "name": "Comer frutas diariamente" (string),  # Nome relacionado à alimentação
+                            "goal": 3 (int),
+                            "measure": "porções" (string)  # Unidade de medida em português
                         },
                         {
-                            "name": "Exercitar-se regularmente",  # Nome relacionado a exercícios
-                            "goal": 5,
-                            "measure": "dias por semana"  # Unidade de medida em português
+                            "name": "Exercitar-se regularmente" (string),  # Nome relacionado a exercícios
+                            "goal": 5 (int),
+                            "measure": "dias por semana" (string)  # Unidade de medida em português
                         },
                         ...
                     ],
                     "exercises": [
                         {
-                            "day": "Segunda-feira",  # O dia da semana em português
+                            "day": "Segunda-feira" (string),  # O dia da semana em português
                             "routine": [
                                 {
-                                    "exercise": "Agachamento com barra",  # Nome do exercício em português
-                                    "sets": 3,
-                                    "weight": 20
-                                    "reps": 15,
-                                    "title": "Agachamento"  # Título em português
+                                    "exercise": "Agachamento com barra" (string),  # Nome do exercício em português
+                                    "sets": 3 (int),
+                                    "weight": 20 (int), 
+                                    "reps": 15 (int),
+                                    "title": "Agachamento" (string) # Título em português
                                 },
                                 {
-                                    "exercise": "Supino reto",  # Segundo exercício
-                                    "sets": 3,
-                                    "weight": 30
-                                    "reps": 12,
-                                    "title": "Supino"
+                                    "exercise": "Supino reto" (string) ,  # Segundo exercício
+                                    "sets": 3 (int),
+                                    "weight": 30 (int),
+                                    "reps": 12 (int),
+                                    "title": "Supino" (string)
                                 },
                                 {
-                                    "exercise": "Levantamento terra",  # Terceiro exercício
-                                    "sets": 3,
-                                    "weight": 40
-                                    "reps": 10,
-                                    "title": "Levantamento"
+                                    "exercise": "Levantamento terra" (string),  # Terceiro exercício
+                                    "sets": 3 (int),
+                                    "weight": 40 (int),
+                                    "reps": 10 (int),
+                                    "title": "Levantamento" (string)
                                 }
                             ]
                         },
@@ -185,31 +185,25 @@ def generate_data_with_gpt(data):
                     ],
                     "diet": [
                         {
-                            "meal": "Café da manhã",  # Nome da refeição em português
+                            "meal": "Café da manhã" (string),  # Nome da refeição em português
                             "foods": [  # Lista de alimentos com detalhes
                                 {
-                                    "name": "Claras de ovos",  # Nome do alimento
-                                    "servings": 2,  # Quantidade de porções
-                                    "calories": 34,  # Calorias por porção
-                                    "protein": 7.2,  # Proteína em gramas por porção
-                                    "carbs": 0.2,  # Carboidratos em gramas por porção
-                                    "fat": 0.1  # Gordura em gramas por porção
+                                    "name": "Claras de ovos" (string),  # Nome do alimento
+                                    "servings": 2 (int),  # Quantidade de porções
+                                    "calories": 34 (int),  # Calorias por porção
+                                    "protein": 7.2 (float),  # Proteína em gramas por porção
+                                    "carbs": 0.2 (float),  # Carboidratos em gramas por porção
+                                    "fat": 0.1 (float) # Gordura em gramas por porção
                                 },
                                 {
-                                    "name": "Aveia",
-                                    "servings": 1,
-                                    "calories": 150,
-                                    "protein": 5,
-                                    "carbs": 27,
-                                    "fat": 3
+                                    "name": "Aveia" (string),
+                                    "servings": 1 (int),
+                                    "calories": 150 (int),
+                                    "protein": 5 (float),
+                                    "carbs": 27 (float),
+                                    "fat": 3 (float)
                                 },
-                                {
-                                    "name": "Banana",
-                                    "servings": 1,
-                                    "calories": 89,
-                                    "protein": 1.1,
-                                    "carbs": 23,
-                                    "fat": 0.3
+                                { # Terceiro alimento
                                 }
                             ]
                         },
@@ -224,7 +218,7 @@ def generate_data_with_gpt(data):
                         ...
                     ]
                 }
-                Lembre-se de fornecer apenas a estrutura JSON válida, sem texto adicional. Todas as informações solicitadas devem estar em português.
+                Lembre-se de fornecer apenas a estrutura JSON válida, sem texto adicional. Respeite a tipagem de cada campo. Todas as informações solicitadas devem estar em português.
                 """
                 }, {"role": "user", "content": f"User Data: {data}"}
             ]
